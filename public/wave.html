@@ -2389,7 +2389,8 @@ let favIconTimer   = null;
 let ctxTabId = null;
 let prxyBase = '/scram/';
 let scramjetController = null;
-let scramjetControllerReady = null; // resolves once controller+SW are initialised
+let scramjetControllerReady = null;
+let bareMuxConnection = null;
 const FAVORITES_STORAGE_KEY = 'wave:favorites';
 // Each tab owns its own ScramjetFrame (tab.frame).
 // We keep exactly one <iframe> in the DOM at a time — the active tab's frame.frame.
@@ -3118,11 +3119,10 @@ async function ensureScramjetController(){
     });
     await initScramjetSafe(ctrl);
 
-    const connection = new BareMux.BareMuxConnection('/baremux/worker.js');
     const wispUrl = (location.protocol==='https:'?'wss':'ws')+'://'+location.host+'/wisp/';
 
-    if((await connection.getTransport()) !== '/libcurl/index.mjs'){
-      await connection.setTransport('/libcurl/index.mjs', [{ websocket: wispUrl }]);
+    if((await bareMuxConnection.getTransport()) !== '/libcurl/index.mjs'){
+      await bareMuxConnection.setTransport('/libcurl/index.mjs', [{ websocket: wispUrl }]);
     }
 
     scramjetController = ctrl;
@@ -5410,6 +5410,7 @@ function _showSrOfflineMsg() {
 /* ════════════════════════════════════════════
    INIT
 ════════════════════════════════════════════ */
+bareMuxConnection = new BareMux.BareMuxConnection('/baremux/worker.js');
 createTab('New Tab','');
 loadFavoritesFromStorage();
 loadCloakSettings();
