@@ -3086,27 +3086,20 @@ function replayNewtabFullAnimation(){
 }
 
 
-// Deletes the Scramjet IDB if it exists but is missing the 'state' object store
-// (happens when the browser has a leftover DB from an older Scramjet version).
-async function repairScramjetIDB(){
-  return new Promise(resolve => {
-    const probe = indexedDB.open('__scramjet_controller');
-    probe.onsuccess = () => {
-      const db = probe.result;
-      const ok = db.objectStoreNames.contains('state');
-      db.close();
-      if(ok){ resolve(); return; }
-      // Wrong schema — wipe it so ctrl.init() can recreate it correctly
-      const del = indexedDB.deleteDatabase('__scramjet_controller');
-      del.onsuccess = del.onerror = del.onblocked = resolve;
-    };
-    probe.onerror = resolve;
-    probe.onupgradeneeded = () => {
-      // DB doesn't exist yet — abort probe, let ctrl.init() create it
-      probe.transaction.abort();
-      resolve();
-    };
-  });
+// Initialises the Scramjet controller, wiping the stale '$scramjet' IDB and
+// retrying once if the schema is wrong (leftover from an older Scramjet version).
+async function initScramjetSafe(ctrl){
+  try {
+    await ctrl.init();
+  } catch(e){
+    if(e.name !== 'NotFoundError'){ console.warn('[Wave] scramjet init (non-fatal):', e); return; }
+    await new Promise(r => {
+      const req = indexedDB.deleteDatabase('$scramjet');
+      req.onsuccess = req.onerror = req.onblocked = r;
+    });
+    try { await ctrl.init(); }
+    catch(e2){ console.warn('[Wave] scramjet init (non-fatal):', e2); }
+  }
 }
 
 async function ensureScramjetController(){
@@ -3115,7 +3108,6 @@ async function ensureScramjetController(){
 
   scramjetControllerReady = (async ()=>{
     if(typeof registerSW === 'function') await registerSW();
-    await repairScramjetIDB();
     const { ScramjetController } = $scramjetLoadController();
     const ctrl = new ScramjetController({
       files: {
@@ -3124,7 +3116,7 @@ async function ensureScramjetController(){
         sync: '/scram/scramjet.sync.js',
       },
     });
-    try { await ctrl.init(); } catch(e) { console.warn('[Wave] scramjet init (non-fatal):', e); }
+    await initScramjetSafe(ctrl);
 
     const connection = new BareMux.BareMuxConnection('/baremux/worker.js');
     const wispUrl = (location.protocol==='https:'?'wss':'ws')+'://'+location.host+'/wisp/';
