@@ -2,158 +2,228 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Wave | Redirecting...</title>
-  <meta name="description" content="Redirecting to Wave..." />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
+  <title>Wave</title>
+
+  <link rel="shortcut icon" href="favicon.ico" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" />
+
+  <script src="/scram/scramjet.all.js"></script>
+  <script src="/baremux/index.js"></script>
+
+  <script src="register-sw.js" defer></script>
+  <script src="search.js" defer></script>
+  <script src="index.js" defer></script>
 
   <style>
-    :root{
-      --bg0:#0d0f12;
-      --bg1:#181c21;
-      --bg2:#1c2026;
-      --bd:#4f5963;
-      --tx:#f0f4f8;
-      --tx2:#b8c4d0;
-      --ac:#9de5ff;
-      --ac2:#70d4ff;
-      --ok:#8aefb0;
-      --radius:14px;
+    :root {
+      --bg0: #0d0f12;
+      --bg1: #181c21;
+      --bg2: #1c2026;
+      --bd:  #4f5963;
+      --tx:  #f0f4f8;
+      --tx2: #b8c4d0;
+      --tx3: #7d8a98;
+      --ac:  #9de5ff;
+      --err: #ff9595;
+      --bar-h: 53px;
     }
 
-    *{box-sizing:border-box;margin:0;padding:0}
-    html,body{
-      height:100%;
-      font-family:"Space Grotesk","Segoe UI",sans-serif;
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+      background: var(--bg0);
+      color: var(--tx);
+      overflow: hidden;
+    }
+
+    /* ── layout ── */
+    .app { height: 100%; display: flex; flex-direction: column; }
+
+    /* ── titlebar ── */
+    .titlebar {
+      height: var(--bar-h);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 0 14px;
+      background: var(--bg0);
+      border-bottom: 1px solid var(--bd);
+      z-index: 10;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--ac);
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    .brand-wave {
+      display: inline-block;
+      animation: float 1.8s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-3px); }
+    }
+
+    /* ── url bar ── */
+    #sj-form {
+      flex: 1;
+      display: flex;
+    }
+
+    #sj-address {
+      width: 100%;
+      height: 36px;
+      background: var(--bg2);
+      border: 1px solid var(--bd);
+      border-radius: 9999px;
+      color: var(--tx);
+      font-family: inherit;
+      font-size: 0.88rem;
+      padding: 0 18px;
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+
+    #sj-address::placeholder { color: var(--tx3); }
+
+    #sj-address:focus {
+      border-color: var(--ac);
+      box-shadow: 0 0 0 3px rgba(157,229,255,.12);
+    }
+
+    /* ── view area ── */
+    .view {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ── new tab page ── */
+    .newtab {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
       background:
-        radial-gradient(900px 500px at 20% 0%, rgba(157,229,255,.18), transparent 55%),
-        linear-gradient(180deg,var(--bg0),var(--bg1));
-      color:var(--tx);
+        radial-gradient(800px 400px at 50% 0%, rgba(157,229,255,.09), transparent 60%),
+        var(--bg0);
     }
 
-    .wrap{
-      min-height:100%;
-      display:grid;
-      place-items:center;
-      padding:24px;
+    .nt-time {
+      font-size: 4.5rem;
+      font-weight: 700;
+      color: var(--tx);
+      letter-spacing: -3px;
+      line-height: 1;
     }
 
-    .card{
-      width:min(520px,100%);
-      border:1px solid var(--bd);
-      background:rgba(28,32,38,.8);
-      backdrop-filter:blur(8px);
-      border-radius:var(--radius);
-      padding:28px 22px;
-      text-align:center;
-      box-shadow:0 16px 48px rgba(0,0,0,.45);
+    .nt-date {
+      font-size: .95rem;
+      color: var(--tx2);
+      margin-bottom: 20px;
     }
 
-    .brand{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:10px;
-      font-weight:700;
-      font-size:2rem;
-      color:var(--ac);
-      margin-bottom:12px;
+    .nt-hint {
+      font-size: .85rem;
+      color: var(--tx3);
     }
 
-    .brand i{
-      font-style:normal;
-      font-size:1.8rem;
-      animation:float 1.8s ease-in-out infinite;
+    /* ── error display ── */
+    #sj-error {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255,149,149,.1);
+      border: 1px solid rgba(255,149,149,.3);
+      border-radius: 8px;
+      padding: 8px 16px;
+      color: var(--err);
+      font-size: .85rem;
+      white-space: pre-wrap;
+      max-width: 480px;
+      text-align: center;
     }
 
-    @keyframes float{
-      0%,100%{transform:translateY(0)}
-      50%{transform:translateY(-4px)}
+    #sj-error:empty { display: none; }
+
+    #sj-error-code {
+      display: none;
     }
 
-    .status{
-      color:var(--tx2);
-      font-size:1rem;
-      margin-bottom:18px;
+    /* ── proxy iframe injected by index.js ── */
+    #sj-frame {
+      position: fixed;
+      top: var(--bar-h);
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      height: calc(100% - var(--bar-h));
+      border: none;
+      z-index: 5;
+      background: #fff;
     }
-
-    .bar{
-      width:100%;
-      height:8px;
-      border-radius:999px;
-      background:rgba(255,255,255,.1);
-      overflow:hidden;
-      margin-bottom:18px;
-    }
-
-    .bar > span{
-      display:block;
-      height:100%;
-      width:38%;
-      background:linear-gradient(90deg,var(--ac),var(--ac2));
-      border-radius:999px;
-      animation:load 1.15s ease-in-out infinite;
-    }
-
-    @keyframes load{
-      0%{transform:translateX(-110%)}
-      100%{transform:translateX(300%)}
-    }
-
-    .small{
-      color:var(--tx2);
-      font-size:.92rem;
-      line-height:1.55;
-    }
-
-    .fallback{
-      margin-top:14px;
-      display:none;
-      color:var(--tx);
-      background:rgba(138,239,176,.08);
-      border:1px solid rgba(138,239,176,.35);
-      border-radius:10px;
-      padding:12px;
-      font-size:.93rem;
-    }
-
-    .fallback a{
-      color:var(--ac);
-      font-weight:600;
-      text-decoration:none;
-    }
-
-    .fallback a:hover{ text-decoration:underline; }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="card">
-      <div class="brand"><i>🌊</i> Wave</div>
-      <p class="status">Loading your proxy hub...</p>
+  <div class="app">
+    <div class="titlebar">
+      <span class="brand">
+        <span class="brand-wave">🌊</span> Wave
+      </span>
+      <form id="sj-form">
+        <input id="sj-search-engine" value="https://www.google.com/search?q=%s" type="hidden" />
+        <input id="sj-address" type="text" placeholder="Search or enter address" autocomplete="off" spellcheck="false" />
+      </form>
+    </div>
 
-      <div class="bar"><span></span></div>
-
-      <p class="small">You’re being redirected to <code>/wave.html</code>.</p>
-
-      <div class="fallback" id="fallback">
-        Didn’t work? Click here:
-        <a href="/wave.html">Open Wave manually</a>
+    <div class="view">
+      <div class="newtab" id="newtab">
+        <div class="nt-time" id="ntTime">00:00</div>
+        <div class="nt-date" id="ntDate"></div>
+        <p class="nt-hint">Type a URL or search above to start browsing</p>
       </div>
+      <p id="sj-error"></p>
+      <pre id="sj-error-code"></pre>
     </div>
   </div>
 
   <script>
-    const TARGET = "/wave.html";
+    // Clock on new tab page
+    (function tick() {
+      const n = new Date();
+      const p = x => String(x).padStart(2, '0');
+      const days   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      document.getElementById('ntTime').textContent = p(n.getHours()) + ':' + p(n.getMinutes());
+      document.getElementById('ntDate').textContent = days[n.getDay()] + ', ' + months[n.getMonth()] + ' ' + n.getDate();
+      setTimeout(tick, 1000);
+    })();
 
-    // Try redirect quickly
-    setTimeout(() => {
-      window.location.replace(TARGET);
-    }, 350);
-
-    // Show fallback if still here
-    setTimeout(() => {
-      document.getElementById("fallback").style.display = "block";
-    }, 2200);
+    // Hide new tab page once index.js injects #sj-frame
+    new MutationObserver(function () {
+      if (document.getElementById('sj-frame')) {
+        document.getElementById('newtab').style.display = 'none';
+      }
+    }).observe(document.body, { childList: true });
   </script>
 </body>
 </html>
