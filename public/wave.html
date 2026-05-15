@@ -3100,7 +3100,7 @@ async function ensureScramjetController(){
         sync: '/scram/scramjet.sync.js',
       },
     });
-    await ctrl.init();
+    ctrl.init().catch(e => console.warn('[Wave] scramjet init (non-fatal):', e));
 
     const connection = new BareMux.BareMuxConnection('/baremux/worker.js');
     const wispUrl = (location.protocol==='https:'?'wss':'ws')+'://'+location.host+'/wisp/';
