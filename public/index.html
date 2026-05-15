@@ -1,66 +1,159 @@
 <!doctype html>
-<html>
-	<head>
-		<meta charset="utf-8" />
-		<meta
-			name="viewport"
-			content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
-		/>
-		<title>Scramjet</title>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Wave | Redirecting...</title>
+  <meta name="description" content="Redirecting to Wave..." />
 
-		<link rel="shortcut icon" content="favicon.webp" />
-	
-		<script src="/scram/scramjet.all.js"></script>
-		<script src="/baremux/index.js"></script>
-		
-		<link rel="stylesheet" href="index.css" />
-		<script src="register-sw.js" defer></script>
-		<script src="search.js" defer></script>
-		<script src="index.js" defer></script>
-	</head>
+  <style>
+    :root{
+      --bg0:#0d0f12;
+      --bg1:#181c21;
+      --bg2:#1c2026;
+      --bd:#4f5963;
+      --tx:#f0f4f8;
+      --tx2:#b8c4d0;
+      --ac:#9de5ff;
+      --ac2:#70d4ff;
+      --ok:#8aefb0;
+      --radius:14px;
+    }
 
-	<body>
-		<div title="Scramjet Logo" class="flex-center logo-wrapper header-center">
-			<img class="logo" src="sj.png" alt="Scramjet" />
-			<h1>Scramjet | MW</h1>
-		</div>
-		<div class="flex-center desc left-margin">
-			<p>
-				Scramjet is an experimental interception based web proxy designed to
-				evade internet censorship, bypass arbitrary web browser restrictions and
-				innovate web proxy technologies.
-			</p>
-		</div>
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{
+      height:100%;
+      font-family:"Space Grotesk","Segoe UI",sans-serif;
+      background:
+        radial-gradient(900px 500px at 20% 0%, rgba(157,229,255,.18), transparent 55%),
+        linear-gradient(180deg,var(--bg0),var(--bg1));
+      color:var(--tx);
+    }
 
-		<form id="sj-form" class="flex-center">
-			<input
-				id="sj-search-engine"
-				value="https://www.duckduckgo.com/search?q=%s"
-				type="hidden"
-			/>
-			<input id="sj-address" type="text" placeholder="Search the web freely" />
-		</form>
-		<div class="desc left-margin">
-			<p id="sj-error"></p>
-			<pre id="sj-error-code"></pre>
-		</div>
-		<footer>
-			<div>
-				<a
-					title="The Mercury Workshop GitHub organization"
-					href="https://github.com/MercuryWorkshop"
-					>Mercury Workshop</a
-				>
-				<a
-					title="The example demo app for Scramjet"
-					href="https://github.com/MercuryWorkshop/Scramjet-Demo"
-					>GitHub</a
-				>
-				<a title="License information" href="credits.html">Credits</a>
-			</div>
-			<div>
-				<span>Scramjet &copy; MW 2025</span>
-			</div>
-		</footer>
-	</body>
+    .wrap{
+      min-height:100%;
+      display:grid;
+      place-items:center;
+      padding:24px;
+    }
+
+    .card{
+      width:min(520px,100%);
+      border:1px solid var(--bd);
+      background:rgba(28,32,38,.8);
+      backdrop-filter:blur(8px);
+      border-radius:var(--radius);
+      padding:28px 22px;
+      text-align:center;
+      box-shadow:0 16px 48px rgba(0,0,0,.45);
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      font-weight:700;
+      font-size:2rem;
+      color:var(--ac);
+      margin-bottom:12px;
+    }
+
+    .brand i{
+      font-style:normal;
+      font-size:1.8rem;
+      animation:float 1.8s ease-in-out infinite;
+    }
+
+    @keyframes float{
+      0%,100%{transform:translateY(0)}
+      50%{transform:translateY(-4px)}
+    }
+
+    .status{
+      color:var(--tx2);
+      font-size:1rem;
+      margin-bottom:18px;
+    }
+
+    .bar{
+      width:100%;
+      height:8px;
+      border-radius:999px;
+      background:rgba(255,255,255,.1);
+      overflow:hidden;
+      margin-bottom:18px;
+    }
+
+    .bar > span{
+      display:block;
+      height:100%;
+      width:38%;
+      background:linear-gradient(90deg,var(--ac),var(--ac2));
+      border-radius:999px;
+      animation:load 1.15s ease-in-out infinite;
+    }
+
+    @keyframes load{
+      0%{transform:translateX(-110%)}
+      100%{transform:translateX(300%)}
+    }
+
+    .small{
+      color:var(--tx2);
+      font-size:.92rem;
+      line-height:1.55;
+    }
+
+    .fallback{
+      margin-top:14px;
+      display:none;
+      color:var(--tx);
+      background:rgba(138,239,176,.08);
+      border:1px solid rgba(138,239,176,.35);
+      border-radius:10px;
+      padding:12px;
+      font-size:.93rem;
+    }
+
+    .fallback a{
+      color:var(--ac);
+      font-weight:600;
+      text-decoration:none;
+    }
+
+    .fallback a:hover{ text-decoration:underline; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="brand"><i>🌊</i> Wave</div>
+      <p class="status">Loading your proxy hub...</p>
+
+      <div class="bar"><span></span></div>
+
+      <p class="small">You’re being redirected to <code>/wave.html</code>.</p>
+
+      <div class="fallback" id="fallback">
+        Didn’t work? Click here:
+        <a href="/wave.html">Open Wave manually</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const TARGET = "/wave.html";
+
+    // Try redirect quickly
+    setTimeout(() => {
+      window.location.replace(TARGET);
+    }, 350);
+
+    // Show fallback if still here
+    setTimeout(() => {
+      document.getElementById("fallback").style.display = "block";
+    }, 2200);
+  </script>
+</body>
 </html>
